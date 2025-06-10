@@ -1,6 +1,6 @@
 package com.youcef.tickets.filters;
 
-import com.youcef.tickets.domain.User;
+import com.youcef.tickets.domain.entities.User;
 import com.youcef.tickets.repositories.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
