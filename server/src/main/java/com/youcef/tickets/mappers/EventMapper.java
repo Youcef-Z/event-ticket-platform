@@ -2,10 +2,9 @@ package com.youcef.tickets.mappers;
 
 import com.youcef.tickets.domain.CreateEventRequest;
 import com.youcef.tickets.domain.CreateTicketTypeRequest;
-import com.youcef.tickets.domain.dtos.CreateEventRequestDto;
-import com.youcef.tickets.domain.dtos.CreateEventResponseDto;
-import com.youcef.tickets.domain.dtos.CreateTicketTypeRequestDto;
+import com.youcef.tickets.domain.dtos.*;
 import com.youcef.tickets.domain.entities.Event;
+import com.youcef.tickets.domain.entities.TicketType;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 
@@ -18,4 +17,7 @@ public interface EventMapper {
 
     CreateEventResponseDto toDto(Event event);
 
+    ListEventTicketTypeResponseDto toDto(TicketType ticketType);
+
+    ListEventResponseDto toListEventResponseDto(Event event);
 }
