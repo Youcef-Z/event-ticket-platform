@@ -1,9 +1,8 @@
 package com.youcef.tickets.controllers;
 
 import com.youcef.tickets.domain.CreateEventRequest;
-import com.youcef.tickets.domain.dtos.CreateEventRequestDto;
-import com.youcef.tickets.domain.dtos.CreateEventResponseDto;
-import com.youcef.tickets.domain.dtos.ListEventResponseDto;
+import com.youcef.tickets.domain.UpdateEventRequest;
+import com.youcef.tickets.domain.dtos.*;
 import com.youcef.tickets.domain.entities.Event;
 import com.youcef.tickets.mappers.EventMapper;
 import com.youcef.tickets.services.EventService;
@@ -26,6 +25,24 @@ public class EventController {
 
     private final EventMapper eventMapper;
     private final EventService eventService;
+
+
+    @PutMapping(path = "/{eventId}")
+    public ResponseEntity<UpdateEventResponseDto> updateEvent(
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable UUID eventId,
+            @Valid @RequestBody UpdateEventRequestDto updateEventRequestDto
+    ) {
+
+        UpdateEventRequest updateEventRequest = eventMapper.fromDto(updateEventRequestDto);
+        UUID userId = parseUserId(jwt);
+
+        Event updatedEvent = eventService.updateEventForOrganizer(userId, eventId, updateEventRequest);
+        UpdateEventResponseDto updateEventResponseDto = eventMapper.toUpdateEventResponseDto(updatedEvent);
+
+        return new ResponseEntity<>(updateEventResponseDto, HttpStatus.OK);
+    }
+
 
     @PostMapping
     public ResponseEntity<CreateEventResponseDto> createEvent(
@@ -50,6 +67,18 @@ public class EventController {
         UUID userId = parseUserId(jwt);
         Page<Event> events = eventService.listEventsForOrganizer(userId, pageable);
         return ResponseEntity.ok(events.map(eventMapper::toListEventResponseDto));
+    }
+
+    @GetMapping(path = "/{eventId}")
+    public ResponseEntity<GetEventDetailsResponseDto> getEvent(
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable UUID eventId) {
+
+        UUID userId = parseUserId(jwt);
+        return eventService.getEventForOrganizer(userId, eventId)
+                .map(eventMapper::toGetEventDetailsResponseDto)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     private UUID parseUserId(Jwt jwt) {
