@@ -3,6 +3,7 @@ package com.youcef.tickets.config;
 import com.youcef.tickets.filters.UserProvisioningFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -19,8 +20,11 @@ public class SecurityConfig {
 
         http
                 .authorizeHttpRequests(authorize ->
-                    // Catch all rule
-                    authorize.anyRequest().authenticated())
+
+                    authorize
+                            .requestMatchers(HttpMethod.GET, "/api/v1/published-events/**").permitAll()
+                            // Catch all rule
+                            .anyRequest().authenticated())
                 .csrf(csrf -> csrf.ignoringRequestMatchers("/api/**"))
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
