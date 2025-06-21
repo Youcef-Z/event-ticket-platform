@@ -20,7 +20,6 @@ public class QrCode {
 
     @Id
     @Column(name = "id", updatable = false, nullable = false)
-    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @Column(name = "status", nullable = false)
@@ -28,7 +27,7 @@ public class QrCode {
     private QrCodeStatusEnum status;
 
     // This will change in the future once we have a qr code service
-    @Column(name = "value", nullable = false)
+    @Column(name = "value", columnDefinition = "TEXT", nullable = false)
     private String value;
 
     @ManyToOne(fetch = FetchType.LAZY)
