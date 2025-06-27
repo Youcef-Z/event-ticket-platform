@@ -9,9 +9,11 @@ import com.youcef.tickets.domain.entities.QrCode;
 import com.youcef.tickets.domain.entities.QrCodeStatusEnum;
 import com.youcef.tickets.domain.entities.Ticket;
 import com.youcef.tickets.exceptions.QrCodeGenerationException;
+import com.youcef.tickets.exceptions.QrCodeNotFoundException;
 import com.youcef.tickets.repositories.QrCodeRepository;
 import com.youcef.tickets.services.QrCodeService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.imageio.ImageIO;
@@ -23,6 +25,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class QrCodeServiceImpl implements QrCodeService {
 
     private static final int QR_HEIGHT = 300;
@@ -50,6 +53,19 @@ public class QrCodeServiceImpl implements QrCodeService {
             return qrCodeRepository.saveAndFlush(qrCode);
         } catch (WriterException | IOException e) {
             throw new QrCodeGenerationException("Unable to generate QR Code", e);
+        }
+    }
+
+    @Override
+    public byte[] getQrCodeImageForUserAndTicket(UUID userId, UUID ticketId) {
+        QrCode qrCode = qrCodeRepository.findByTicketIdAndTicketPurchaserId(ticketId, userId)
+                .orElseThrow(QrCodeNotFoundException::new);
+
+        try {
+            return Base64.getDecoder().decode(qrCode.getValue());
+        } catch (IllegalArgumentException e) {
+            log.error("Invalid base64 QR code for ticketId: {}", ticketId, e);
+            throw new QrCodeNotFoundException();
         }
     }
 
